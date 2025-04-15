@@ -8,18 +8,22 @@ import com.lilim.ecotracker.security.jwt.JwtUtils;
 import com.lilim.ecotracker.security.model.User;
 import com.lilim.ecotracker.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -40,27 +44,31 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        
-        org.springframework.security.core.userdetails.User userDetails = 
-                (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
-        
-        Set<String> roles = new HashSet<>();
-        userDetails.getAuthorities().forEach(authority -> 
-            roles.add(authority.getAuthority())
-        );
-        
-        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                                             user.getId(), 
-                                             user.getUsername(), 
-                                             user.getEmail(), 
-                                             roles));
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            Set<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toSet());
+
+            User user = userRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Asegúrate de que el token no sea null y lo estés pasando correctamente
+            System.out.println("Token generado: " + jwt.substring(0, 20) + "...");
+
+            return ResponseEntity.ok(new JwtResponse(jwt, user.getId(), user.getUsername(), user.getEmail(), roles));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/signup")
@@ -88,11 +96,11 @@ public class AuthController {
         if (roles == null) {
             roles = new HashSet<>();
         }
-        
+
         if (roles.isEmpty()) {
             roles.add("ROLE_USER");
         }
-        
+
         user.setRoles(roles);
         userRepository.save(user);
 
