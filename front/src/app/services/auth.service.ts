@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { User, LoginRequest, SignupRequest, AuthResponse } from '../models/auth.model';
 
@@ -14,6 +14,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) {
     const storedUser = localStorage.getItem('currentUser');
+    console.log('Usuario almacenado en localStorage:', storedUser);
+
     this.currentUserSubject = new BehaviorSubject<User | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
@@ -21,44 +23,37 @@ export class AuthService {
   }
 
   public get currentUserValue(): User | null {
-    return this.currentUserSubject.value;
+    const user = this.currentUserSubject.value;
+    console.log('Obteniendo currentUserValue:', user);
+    return user;
   }
 
   signup(request: SignupRequest): Observable<any> {
-    return this.http.post(`${this.API_URL}/signup`, request, {
-      withCredentials: true
-    });
+    return this.http.post(`${this.API_URL}/signup`, request);
   }
 
-// En la función login() del servicio AuthService
   login(request: LoginRequest): Observable<User> {
     return this.http.post<AuthResponse>(`${this.API_URL}/signin`, request)
       .pipe(
         map(response => {
-          // Verificar que el token existe en la respuesta
-          console.log('Respuesta del login:', response); // Para depuración
+          console.log('Respuesta completa del login:', response);
 
+          // Crear objeto de usuario con los datos recibidos
           const user: User = {
             id: response.id,
             username: response.username,
             email: response.email,
             name: response.name || response.username,
             roles: response.roles,
-            token: response.token // Asegúrate de que esto no sea undefined
+            token: response.token
           };
 
-          // Verificar que el token está presente antes de guardar
-          if (!user.token) {
-            console.error('No se recibió token del servidor');
-          } else {
-            console.log('Token recibido y guardado:', user.token.substring(0, 20) + '...');
-          }
-
-
-
+          console.log('Usuario creado para almacenar:', user);
 
           // Guardar usuario en localStorage
           localStorage.setItem('currentUser', JSON.stringify(user));
+          console.log('Usuario guardado en localStorage');
+
           this.currentUserSubject.next(user);
           return user;
         })
@@ -66,24 +61,20 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('Cerrando sesión y eliminando usuario de localStorage');
     // Eliminar usuario de localStorage
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
   }
 
   isLoggedIn(): boolean {
-    return !!this.currentUserValue;
+    const user = this.currentUserValue;
+    const isLoggedIn = !!user && !!user.token;
+    console.log('isLoggedIn:', isLoggedIn, 'User:', user);
+    return isLoggedIn;
   }
 
   isAdmin(): boolean {
     return this.currentUserValue?.roles.includes('ROLE_ADMIN') || false;
-  }
-
-  getAuthorizationHeader(): HttpHeaders {
-    const user = this.currentUserValue;
-    if (user && user.token) {
-      return new HttpHeaders().set('Authorization', `Bearer ${user.token}`);
-    }
-    return new HttpHeaders();
   }
 }

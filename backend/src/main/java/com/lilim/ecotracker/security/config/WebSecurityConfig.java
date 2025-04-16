@@ -80,14 +80,31 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a la consola H2
+                                // Permitir acceso a recursos Angular y rutas de la interfaz de usuario
+                                .requestMatchers(
+                                        "/",
+                                        "/index.html",
+                                        "/favicon.ico",
+                                        "/assets/**",
+                                        "/*.js",
+                                        "/*.css",
+                                        "/*.txt",
+                                        "/*.ico",
+                                        "/*.chunk.js",
+                                        "/login",
+                                        "/register",
+                                        "/home",
+                                        "/habitos",
+                                        "/luz",
+                                        "/agua",
+                                        "/transporte",
+                                        "/profile"
+                                ).permitAll()
+                                .requestMatchers("/h2-console/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
-        // Configuración específica para la consola H2
-        http.headers(headers ->
-                headers.frameOptions(frameOption -> frameOption.sameOrigin())
-        );
+        // Resto de configuración...
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

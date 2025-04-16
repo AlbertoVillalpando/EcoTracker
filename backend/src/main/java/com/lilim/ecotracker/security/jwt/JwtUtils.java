@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -23,33 +24,62 @@ public class JwtUtils {
 
     public String generateJwtToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        logger.info("Generando token JWT para el usuario: " + userPrincipal.getUsername());
 
-        return Jwts.builder()
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        logger.info("Token válido desde: " + now + " hasta: " + expiryDate);
+
+        String token = Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
                 .signWith(jwtSecret)  // Usa la clave generada
                 .compact();
+
+        logger.info("Token generado: " + token.substring(0, 20) + "...");
+
+        return token;
     }
 
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)  // Usa la misma clave
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            String username = Jwts.parserBuilder()
+                    .setSigningKey(jwtSecret)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+
+            logger.info("Username extraído del token: " + username);
+            return username;
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error al extraer username del token: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)  // Usa la misma clave
+                    .setSigningKey(jwtSecret)
                     .build()
                     .parseClaimsJws(authToken);
+
+            logger.info("Token JWT válido");
             return true;
+        } catch (SignatureException e) {
+            logger.severe("Firma JWT inválida: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.severe("Token JWT malformado: " + e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.severe("Token JWT expirado: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.severe("Token JWT no soportado: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.severe("JWT claims string está vacío: " + e.getMessage());
         } catch (Exception e) {
-            logger.warning("JWT token validation error: " + e.getMessage());
+            logger.severe("Error general validando JWT: " + e.getMessage());
         }
 
         return false;
