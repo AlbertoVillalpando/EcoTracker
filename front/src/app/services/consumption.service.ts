@@ -22,7 +22,7 @@ export class ConsumptionService {
     private router: Router
   ) {}
 
-  // Método privado para manejar errores
+// Método privado para manejar errores
   private handleError(error: HttpErrorResponse) {
     console.error('Error en la solicitud HTTP:', error);
 
@@ -30,7 +30,12 @@ export class ConsumptionService {
     if (error.status === 401) {
       console.log('Error de autenticación. Redirigiendo al login...');
       this.authService.logout();
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url,
+          authError: 'Tu sesión ha expirado o no es válida. Por favor, inicia sesión nuevamente.'
+        }
+      });
     }
 
     return throwError(() => error);
@@ -41,21 +46,21 @@ export class ConsumptionService {
    * @returns Observable of consumption summary data
    */
   getConsumptionSummary(): Observable<ConsumptionSummary[]> {
-
     return this.http.get<ConsumptionSummary[]>(`${this.API_URL}/summary`)
       .pipe(
         catchError(this.handleError.bind(this))
       );
   }
 
-  /**
-   * Save electricity consumption data
-   * @param data The electricity consumption data to save
-   * @returns Observable of the saved data with generated ID
-   */
+// También aplica catchError a los demás métodos
   saveElectricityConsumption(data: ElectricityConsumption): Observable<ElectricityConsumption> {
-    return this.http.post<ElectricityConsumption>(`${this.API_URL}/electricity`, data);
+    return this.http.post<ElectricityConsumption>(`${this.API_URL}/electricity`, data)
+      .pipe(
+        catchError(this.handleError.bind(this))
+      );
   }
+
+// Y así con el resto de métodos...
 
   /**
    * Get all electricity consumption entries

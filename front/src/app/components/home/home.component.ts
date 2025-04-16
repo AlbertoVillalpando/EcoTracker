@@ -359,15 +359,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
-// En HomeComponent
   loadDashboardData(): void {
-    console.log('Cargando datos del dashboard...');
-    console.log('Usuario actual:', this.authService.currentUserValue);
-
     // Get consumption summary data
     this.consumptionService.getConsumptionSummary().subscribe({
       next: data => {
-        console.log('Datos del resumen recibidos:', data);
         this.summary = data;
         this.generatePieChart();
       },
@@ -376,8 +371,14 @@ export class HomeComponent implements OnInit {
 
         // Si hay un error de autenticación (token expirado), hacer logout
         if (error.status === 401) {
+          console.log('Error de autenticación. Cerrando sesión...');
           this.authService.logout();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login'], {
+            queryParams: {
+              returnUrl: this.router.url,
+              authError: 'Tu sesión ha expirado o no es válida. Por favor, inicia sesión nuevamente.'
+            }
+          });
         }
       }
     });

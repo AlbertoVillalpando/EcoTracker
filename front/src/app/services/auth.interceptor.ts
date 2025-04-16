@@ -1,59 +1,42 @@
 // src/app/services/auth.interceptor.ts
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HTTP_INTERCEPTORS
-} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+// Interceptor en formato funcional para Angular 17
+export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
+  // Inyectamos el servicio de autenticación
+  const authService = inject(AuthService);
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log('Interceptando solicitud:', request.url); // Para depuración
+  console.log('Interceptando solicitud a:', req.url);
 
-    // Obtener el usuario actual (que incluye el token)
-    const currentUser = this.authService.currentUserValue;
+  // Obtenemos el usuario actual
+  const currentUser = authService.currentUserValue;
 
-    // Si hay un usuario logueado y tiene token, añadirlo a la solicitud
-    if (currentUser && currentUser.token) {
-      console.log('Añadiendo token a la solicitud'); // Para depuración
+  // Si hay un usuario logueado y tiene token, añadirlo a la solicitud
+  if (currentUser && currentUser.token) {
+    console.log('Token encontrado, añadiendo a la solicitud');
 
-      // Clonar la solicitud y añadir el token
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${currentUser.token}`
-        }
-      });
-    } else {
-      console.log('No hay token disponible'); // Para depuración
-    }
+    // Asegurarse de que el token tenga el prefijo Bearer
+    const authToken = currentUser.token.startsWith('Bearer ')
+      ? currentUser.token
+      : `Bearer ${currentUser.token}`;
 
-    console.log('Current user:', currentUser);
-    if (currentUser && currentUser.token) {
-      console.log('Añadiendo token a la solicitud');
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${currentUser.token}`
-        }
-      });
-    } else {
-      console.log('No hay token disponible');
-    }
+    // Clonar la solicitud y añadir el token con formato correcto
+    const clonedRequest = req.clone({
+      setHeaders: {
+        Authorization: authToken
+      }
+    });
 
-    console.log('Interceptando solicitud:', request.url);
-    console.log('Usuario actual:', this.authService.currentUserValue);
+    // Verificar que la cabecera se ha añadido correctamente
+    console.log('Authorization header añadido:',
+      clonedRequest.headers.get('Authorization')?.substring(0, 25) + '...');
 
-
-    return next.handle(request);
+    return next(clonedRequest);
   }
-}
 
-export const authInterceptorProviders = [
-  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
-];
+  // Si no hay token, continuar sin modificar la solicitud
+  console.log('No hay token disponible, continuando sin Authorization');
+  return next(req);
+};
