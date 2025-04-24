@@ -1,14 +1,30 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './services/auth.interceptor';
 
+/**
+ * Application configuration for EcoTracker
+ * Provides application-wide services and configuration options
+ */
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Provide optimized change detection
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    // Importante: En Angular 17, los interceptores se registran usando withInterceptors
+
+    // Configure router with view transitions for smooth navigation
+    provideRouter(
+      routes,
+      withViewTransitions({
+        skipInitialTransition: true,
+        onViewTransitionCreated: (transitionInfo) => {
+          console.log('View transition created for:', transitionInfo.to.url);
+        }
+      })
+    ),
+
+    // Configure HTTP client with auth interceptor
     provideHttpClient(withInterceptors([authInterceptor]))
   ]
 };

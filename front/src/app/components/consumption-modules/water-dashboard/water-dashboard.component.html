@@ -1,0 +1,95 @@
+<!-- KPI Cards Grid -->
+<div class="kpi-grid">
+  <ng-container *ngIf="currentKpiPage === 0">
+    <!-- KPI Pair 1: Bimonthly Consumption & Cost -->
+    <app-kpi-card *ngFor="let kpi of waterKpis.slice(0, 2)"
+                  [title]="kpi.title"
+                  [primaryValue]="kpi.primaryValue"
+                  [primaryUnit]="kpi.primaryUnit"
+                  [secondaryValue]="kpi.secondaryValue"
+                  [secondaryUnit]="kpi.secondaryUnit"
+                  [status]="kpi.status"
+                  [trend]="kpi.trend"
+                  [footerText]="kpi.footerText"
+                  [sparklinePath]="kpi.sparklinePath"
+                  [sparklineEndPoint]="kpi.sparklineEndPoint">
+    </app-kpi-card>
+  </ng-container>
+
+  <ng-container *ngIf="currentKpiPage === 1">
+    <!-- KPI Pair 2: Moving Average & Benchmark -->
+    <app-kpi-card *ngFor="let kpi of waterKpis.slice(2, 4)"
+                  [title]="kpi.title"
+                  [primaryValue]="kpi.primaryValue"
+                  [primaryUnit]="kpi.primaryUnit"
+                  [secondaryValue]="kpi.secondaryValue"
+                  [secondaryUnit]="kpi.secondaryUnit"
+                  [status]="kpi.status"
+                  [trend]="kpi.trend"
+                  [footerText]="kpi.footerText"
+                  [sparklinePath]="kpi.sparklinePath"
+                  [sparklineEndPoint]="kpi.sparklineEndPoint">
+    </app-kpi-card>
+  </ng-container>
+
+  <ng-container *ngIf="currentKpiPage === 2">
+    <!-- KPI Pair 3: Anomalies & CO2 Savings -->
+    <app-kpi-card *ngFor="let kpi of waterKpis.slice(4, 6)"
+                  [title]="kpi.title"
+                  [primaryValue]="kpi.primaryValue"
+                  [primaryUnit]="kpi.primaryUnit"
+                  [secondaryValue]="kpi.secondaryValue"
+                  [secondaryUnit]="kpi.secondaryUnit"
+                  [status]="kpi.status"
+                  [trend]="kpi.trend"
+                  [footerText]="kpi.footerText"
+                  [sparklinePath]="kpi.sparklinePath"
+                  [sparklineEndPoint]="kpi.sparklineEndPoint">
+    </app-kpi-card>
+  </ng-container>
+</div>
+
+<!-- Pagination controls -->
+<app-kpi-pagination
+  [currentPage]="currentKpiPage"
+  [totalPages]="3"
+  (pageChange)="onPageChange($event)">
+</app-kpi-pagination>
+
+<!-- Action button for consumption registration -->
+<div class="action-button">
+  <a [routerLink]="'/' + activeTabName" class="btn-register">
+    Registrar consumo de {{ activeTabName }}
+  </a>
+</div>
+
+<!-- Recommendations section -->
+<div class="recommendations-section">
+  <h3>Recomendaciones</h3>
+
+  <div class="recommendations-grid">
+    <div class="recommendation-item">
+      <div class="recommendation-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="recommendation-content">
+        <h4>Revisa fugas ocultas</h4>
+        <p>Las fugas pequeñas pueden sumar hasta 38 litros diarios de consumo innecesario.</p>
+      </div>
+    </div>
+
+    <div class="recommendation-item">
+      <div class="recommendation-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="recommendation-content">
+        <h4>Instala aireadores</h4>
+        <p>Los aireadores para grifos pueden reducir el consumo de agua hasta en un 50%.</p>
+      </div>
+    </div>
+  </div>
+</div>
