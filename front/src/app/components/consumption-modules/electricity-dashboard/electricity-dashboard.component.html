@@ -1,10 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+<!-- KPI Cards Grid -->
+<div class="kpi-grid">
+  <!-- Your KPI cards for electricity will go here -->
+  <p>Datos de consumo eléctrico</p>
+</div>
 
-</body>
-</html>
+<!-- Action button for consumption registration -->
+<div class="action-button">
+  <a [routerLink]="'/' + activeTabName" class="btn-register">
+    Registrar consumo de {{ activeTabName }}
+  </a>
+</div>
+
+<!-- Recommendations section -->
+<div class="recommendations-section">
+  <h3>Recomendaciones</h3>
+
+  <div class="recommendations-grid">
+    <div class="recommendation-item">
+      <div class="recommendation-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M7 2v11h3v9l7-12h-4l4-8z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="recommendation-content">
+        <h4>Utiliza focos LED</h4>
+        <p>Los focos LED consumen hasta 80% menos energía que los focos incandescentes tradicionales.</p>
+      </div>
+    </div>
+
+    <div class="recommendation-item">
+      <div class="recommendation-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="recommendation-content">
+        <h4>Desconecta aparatos en standby</h4>
+        <p>Los aparatos en modo de espera pueden consumir hasta un 10% de tu electricidad total.</p>
+      </div>
+    </div>
+  </div>
+</div>

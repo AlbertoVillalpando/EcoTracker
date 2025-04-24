@@ -7,6 +7,10 @@ import { TransportDashboardComponent } from '../consumption-modules/transport-da
 
 import { ConsumptionTabType } from '../../models/dashboard.model';
 
+/**
+ * Dashboard component that serves as the container for all consumption modules
+ * Handles tab selection and state management for child components
+ */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -29,6 +33,7 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Changes the active consumption tab
+   * Explicitly typed to prevent Event object from being passed
    */
   setActiveTab(tab: ConsumptionTabType): void {
     this.activeTab = tab;
