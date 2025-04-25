@@ -3,6 +3,9 @@ import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './services/auth.interceptor';
+import {ElectricityAnalyticsService} from './services/analytics/electricity-analytics.service';
+import {TransportAnalyticsService} from './services/analytics/transport-analytics.service';
+import {SparklineService} from './services/visualization/sparkline.service';
 
 /**
  * Application configuration for EcoTracker
@@ -25,6 +28,10 @@ export const appConfig: ApplicationConfig = {
     ),
 
     // Configure HTTP client with auth interceptor
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor])),
+
+    ElectricityAnalyticsService,
+    TransportAnalyticsService,
+    SparklineService
   ]
 };

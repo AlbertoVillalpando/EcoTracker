@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConsumptionTabComponent } from '../consumption-tab/conumption-tab.component';
+import { ConsumptionTabComponent } from '../consumption-tab/consumption-tab.component';
 import { WaterDashboardComponent } from '../consumption-modules/water-dashboard/water-dashboard.component';
 import { ElectricityDashboardComponent } from '../consumption-modules/electricity-dashboard/electricity-dashboard.component';
 import { TransportDashboardComponent } from '../consumption-modules/transport-dashboard/transport-dashboard.component';

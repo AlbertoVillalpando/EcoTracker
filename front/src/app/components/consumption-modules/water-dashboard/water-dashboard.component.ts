@@ -9,6 +9,10 @@ import { SparklineService } from '../../../services/visualization/sparkline.serv
 import { WaterConsumption } from '../../../models/consumption.model';
 import { KpiData } from '../../../models/kpi.model';
 
+/**
+ * Componente para el módulo de dashboard de agua
+ * Muestra KPIs y recomendaciones para el consumo de agua
+ */
 @Component({
   selector: 'app-water-dashboard',
   templateUrl: './water-dashboard.component.html',
@@ -39,7 +43,7 @@ export class WaterDashboardComponent implements OnInit {
   }
 
   /**
-   * Load water consumption data and process KPIs
+   * Carga los datos de consumo de agua y procesa los KPIs
    */
   private loadWaterData(): void {
     this.consumptionService.getWaterConsumption().subscribe({
@@ -48,8 +52,8 @@ export class WaterDashboardComponent implements OnInit {
         this.processWaterKpis();
       },
       error: (error) => {
-        console.error('Error loading water consumption data:', error);
-        // Optional: Load mock data for development/testing
+        console.error('Error cargando datos de consumo de agua:', error);
+        // Cargar datos de ejemplo para desarrollo/pruebas
         this.waterConsumption = this.consumptionService.getMockWaterData();
         this.processWaterKpis();
       }
@@ -57,8 +61,8 @@ export class WaterDashboardComponent implements OnInit {
   }
 
   /**
-   * Process water consumption data into KPI metrics
-   * This is now delegated to the WaterAnalyticsService
+   * Procesa los datos de consumo de agua en métricas KPI
+   * Ahora delega al servicio WaterAnalyticsService
    */
   private processWaterKpis(): void {
     this.waterKpis = this.waterAnalyticsService.generateWaterKpis(
@@ -68,14 +72,14 @@ export class WaterDashboardComponent implements OnInit {
   }
 
   /**
-   * Change the current KPI page
+   * Cambiar la página KPI actual
    */
   onPageChange(page: number): void {
     this.currentKpiPage = page;
   }
 
   /**
-   * Helper to sort consumption data by date (newest first)
+   * Ordenar datos por fecha (más recientes primero)
    */
   private sortByDate<T extends { date: Date }>(data: T[]): T[] {
     return [...data].sort((a, b) => b.date.getTime() - a.date.getTime());
