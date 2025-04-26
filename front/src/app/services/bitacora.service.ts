@@ -82,6 +82,12 @@ export class BitacoraService {
    * @returns Observable of single bitácora
    */
   getBitacoraById(id: number): Observable<Bitacora> {
+    // Validar ID antes de hacer la solicitud
+    if (id === undefined || isNaN(id) || id <= 0) {
+      console.error('ID de bitácora inválido:', id);
+      return throwError(() => new Error('ID de bitácora inválido. Por favor, intente nuevamente con un ID válido.'));
+    }
+
     return this.http.get<Bitacora>(`${this.API_URL}/${id}`).pipe(
       map(bitacora => this.processBitacoraDateFields(bitacora)),
       catchError(error => {
@@ -97,7 +103,7 @@ export class BitacoraService {
    * @param image Optional image file
    * @returns Observable of created bitácora
    */
-  createBitacora(bitacora: Bitacora, image?: File): Observable<Bitacora> {
+  createBitacora(bitacora: Bitacora, image?: File, fechaFormateada?: string): Observable<Bitacora> {
     const formData = new FormData();
     formData.append('titulo', bitacora.titulo);
 
@@ -105,7 +111,8 @@ export class BitacoraService {
       formData.append('descripcion', bitacora.descripcion);
     }
 
-    formData.append('fecha', bitacora.fecha.toISOString());
+    // Usar la fecha formateada en lugar de toISOString()
+    formData.append('fecha', fechaFormateada || bitacora.fecha.toISOString());
     formData.append('categoria', bitacora.categoria);
 
     if (bitacora.camposAdicionales) {
@@ -137,7 +144,7 @@ export class BitacoraService {
    * @param image Optional new image file
    * @returns Observable of updated bitácora
    */
-  updateBitacora(id: number, bitacora: Bitacora, image?: File): Observable<Bitacora> {
+  updateBitacora(id: number, bitacora: Bitacora, image?: File, fechaFormateada?: string): Observable<Bitacora> {
     const formData = new FormData();
     formData.append('titulo', bitacora.titulo);
 
@@ -145,7 +152,8 @@ export class BitacoraService {
       formData.append('descripcion', bitacora.descripcion);
     }
 
-    formData.append('fecha', bitacora.fecha.toISOString());
+    // Usar la fecha formateada en lugar de toISOString()
+    formData.append('fecha', fechaFormateada || bitacora.fecha.toISOString());
     formData.append('categoria', bitacora.categoria);
 
     if (bitacora.camposAdicionales) {

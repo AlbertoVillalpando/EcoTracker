@@ -54,6 +54,11 @@ public class BitacoraController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<BitacoraDTO> getBitacoraById(@PathVariable Long id) {
+
+        if (id == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return bitacoraService.getBitacoraById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

@@ -578,6 +578,7 @@ get camposAdicionales() {
   /**
    * Form submission handler
    */
+// Modifica el método onSubmit() en BitacoraFormComponent
   onSubmit(): void {
     this.isSubmitted = true;
 
@@ -595,18 +596,23 @@ get camposAdicionales() {
 
     // Prepare data from form values
     const formData = this.bitacoraForm!.value;
+
+    // Formatear la fecha correctamente para el backend, eliminando la parte de zona horaria
+    const fechaFormateada = new Date(formData.fecha);
+    const fechaString = fechaFormateada.toISOString().split('T')[0] + 'T00:00:00';
+
     const bitacora: Bitacora = {
       titulo: formData.titulo,
       descripcion: formData.descripcion,
-      fecha: new Date(formData.fecha),
+      fecha: new Date(formData.fecha), // Este es para uso local
       categoria: formData.categoria,
       camposAdicionales: formData.camposAdicionales
     };
 
     // Create or update based on mode
     const request = this.isEditMode
-      ? this.bitacoraService.updateBitacora(this.bitacoraId!, bitacora, this.selectedImage || undefined)
-      : this.bitacoraService.createBitacora(bitacora, this.selectedImage || undefined);
+      ? this.bitacoraService.updateBitacora(this.bitacoraId!, bitacora, this.selectedImage || undefined, fechaString)
+      : this.bitacoraService.createBitacora(bitacora, this.selectedImage || undefined, fechaString);
 
     request
       .pipe(

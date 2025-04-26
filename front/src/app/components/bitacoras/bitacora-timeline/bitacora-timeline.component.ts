@@ -132,7 +132,7 @@ interface TimelineGroup {
                   </div>
 
                   <h3 class="timeline-title">
-                    <a [routerLink]="['/bitacoras', bitacora.id]">{{ bitacora.titulo }}</a>
+                    <a [routerLink]="['/bitacoras', isValidId(bitacora.id) ? bitacora.id : '']">{{ bitacora.titulo }}</a>
                   </h3>
 
                   <p *ngIf="bitacora.descripcion" class="timeline-description">
@@ -146,14 +146,14 @@ interface TimelineGroup {
                   </div>
 
                   <div class="timeline-actions">
-                    <a [routerLink]="['/bitacoras', bitacora.id]" class="btn-view">
+                    <a [routerLink]="['/bitacoras', isValidId(bitacora.id) ? bitacora.id : '']" class="btn-view">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
                       Ver
                     </a>
-                    <a [routerLink]="['/bitacoras/edit', bitacora.id]" class="btn-edit">
+                    <a [routerLink]="['/bitacoras/edit', isValidId(bitacora.id) ? bitacora.id : '']" class="btn-edit">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                       </svg>
@@ -754,4 +754,14 @@ export class BitacoraTimelineComponent implements OnInit {
     }
     return text.slice(0, maxLength) + '...';
   }
+
+  /**
+   * Comprueba si un ID es válido
+   * @param id ID a validar
+   * @returns true si es un ID válido
+   */
+  isValidId(id: any): boolean {
+    return id !== undefined && id !== null && !isNaN(Number(id)) && Number(id) > 0;
+  }
+
 }
